@@ -104,8 +104,6 @@ const HomePage = () => {
                           <SimpleGrid
                             columns={{sm:1 ,md:2 , lg:3 , xl:4}}
                             spacing={10}
-                          
-                            
                    
                             pr="50"
                             pl="50"
@@ -124,6 +122,7 @@ const HomePage = () => {
                                   borderWidth="1px"
                                   borderRadius="lg"
                                   overflow="hidden"
+                                  boxShadow={'md'}
                                 >
                                   <Image
                                     src={element.flags.svg}

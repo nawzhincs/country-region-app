@@ -6,7 +6,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import SingleCountry from './components/SingeCountry.jsx'
 
 
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
 
      <ChakraProvider theme={theme}>
