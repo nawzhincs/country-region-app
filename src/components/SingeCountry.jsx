@@ -40,7 +40,7 @@ function SingleCountry() {
           return (
             <Center key={element.name.common} >
               <SimpleGrid
-                columns={[1, null, 2]}
+                columns={{sm:1 ,md:1 , lg:2 , xl:2}}
                 spacing={100}
                 pt="100"
                 pr="50"
