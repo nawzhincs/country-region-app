@@ -7,7 +7,17 @@ import { SearchIcon } from '@chakra-ui/icons'
 import {BsChevronDown} from 'react-icons/bs'
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
+import AdvancedExample from './AdvancedExample'
+import DataTable from 'datatables.net-dt'
+import { act } from 'react-dom/test-utils'
+import ReactPaginate from 'react-paginate'
 
+const chunkIntoN = (arr, n) => {
+  const size = Math.ceil(arr.length / n);
+  return Array.from({ length: n }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  );
+}
 
 const HomePage = () => {
 
@@ -16,6 +26,14 @@ const HomePage = () => {
     const [searchInput , setSearchInput] = useState('');
     const [error , setErrors] = useState();
     const [data, setData]=useState([]);
+   
+    const [index, setIndex] = useState(0);
+
+
+    const [page , setPage]= useState(0);
+
+    const [activePage , setActivePage] = useState(0);
+
     const [searchData, setSearchData]=useState([]);
 
     // data 
@@ -26,10 +44,35 @@ const HomePage = () => {
 
     // handle search input and filter
    const handleMenuItem =(value)=>{
+    setIndex(1);
+    setActivePage(1)
+    
+    console.log("Index now " , index);
     setMenuItem(value);
+
+ 
+    
+
+
+
+
     
    }
+ 
+ 
+   const handleActivePage = (activePage)=>{
+    setActivePage(activePage)
+   
 
+    setIndex(activePage)
+   
+
+
+   }
+
+
+
+   //TODO: search section 
    const handleSearchInput =(e)=>{
     e.preventDefault();
     setSearchInput(e.target.value.toLowerCase());
@@ -41,11 +84,22 @@ const HomePage = () => {
         )
       );
    }
+
+
    useEffect(() => {
+
     if (menuItem === "all") {
+
       axios.get(`https://restcountries.com/v3.1/all`).then((response)=>{
-        setData(response.data),
-        setSearchData(response.data);   
+
+       setPage(response.data.length / 8)
+       
+        setData(chunkIntoN(response.data , response.data.length / 8)),
+
+        setSearchData(response.data); 
+        
+
+        
       }).catch((error)=>{
         console.log(error.message);
         setErrors(error.message)
@@ -54,7 +108,12 @@ const HomePage = () => {
 
         axios.get(`https://restcountries.com/v3.1/region/${menuItem}`)
         .then((response)=>{
-            setData(response.data),
+           
+            
+            setPage(response.data.length / 8)
+
+            setData(chunkIntoN(response.data , response.data.length / 8)),
+            
             setSearchData(response.data);
         }).catch((error)=>{
             console.log(error.message);
@@ -89,7 +148,11 @@ const HomePage = () => {
             <MenuButton  fontWeight={'400'} marginY={2} as={Button}  rightIcon={< BsChevronDown />} > {menuItem==='all' ? <span>Filter By Regions</span> : <span>{menuItem}</span> } </MenuButton>
             <MenuList 
             >
-            {filterRegion.map(element=><MenuItem key={element} onClick={()=>handleMenuItem(element)}>{element}</MenuItem>)}
+            {filterRegion.map(element=><MenuItem key={element}
+            onClick={()=>{
+              handleMenuItem(element)
+            }
+              }>{element}</MenuItem>)}
             </MenuList>
             </Menu>
             </HStack>
@@ -97,8 +160,6 @@ const HomePage = () => {
                 {
             data.length===0 ?   (<Progress colorScheme="blue" size="xs" isIndeterminate />
             ) :
-                
-                
                     (
                         <Box w="100%">
                           <SimpleGrid
@@ -108,7 +169,7 @@ const HomePage = () => {
                             pr="50"
                             pl="50"
                           >
-                            {data?.map((element) => (
+                            {data[index].map((element , index ) => (
                               <GridItem
                              
                                 key={element.name.common}
@@ -123,7 +184,9 @@ const HomePage = () => {
                                   borderRadius="lg"
                                   overflow="hidden"
                                   boxShadow={'md'}
+                                  transition={'transform .2s'}
                                 >
+                                
                                   <Image
                                     src={element.flags.svg}
                                     alt={element.name.common}
@@ -181,7 +244,38 @@ const HomePage = () => {
                               </GridItem>
                             ))}
                           </SimpleGrid>
+                          <HStack pt={10} justifyContent={'Center'} >
+                        
+                     <ReactPaginate 
+
+                      initialPage={index}
+                      pageCount={page}
+                      nextLabel={'next'}
+                      previousLabel='previous'
+                      breakLabel='...... '
+                      marginPagesDisplayed={2}
+                      pageRangeDisplayed={4}
+                      onPageChange={(page)=>{
+                      }}
+                      onClick={(data)=>{
+                        // setPage(data.selected)
+                        setIndex(data.selected);
+                      }}
+                      containerClassName='pagination justify-content-center'
+                      pageClassName='page-item'
+                      pageLinkClassName='page-link'
+                      previousClassName='page-link'
+                      nextClassName='page-link'
+                      breakClassName='page-link'
+                      activeClassName='active'
+           
+
+                      
+                         />
+                      </HStack>
                         </Box>
+
+                        
              )
                 
                 }
